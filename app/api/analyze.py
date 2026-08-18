@@ -1,4 +1,6 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
+
 
 router = APIRouter(
     prefix="/api",
@@ -6,8 +8,17 @@ router = APIRouter(
 )
 
 
-@router.get("/analyze")
-def analyze_email():
+class EmailRequest(BaseModel):
+    sender: str
+    subject: str
+    body: str
+
+
+@router.post("/analyze")
+def analyze_email(email: EmailRequest):
     return {
-        "message": "PhishLens analysis endpoint"
+        "sender": email.sender,
+        "subject": email.subject,
+        "message": "Email received successfully",
+        "status": "ready_for_analysis"
     }
