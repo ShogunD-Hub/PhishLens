@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from app.analyzers.content_analyzer import analyze_content
+from app.analyzers.url_analyzer import analyze_urls
 from app.scoring.risk_engine import calculate_risk
 
 
@@ -20,14 +21,19 @@ class EmailRequest(BaseModel):
 @router.post("/analyze")
 def analyze_email(email: EmailRequest):
 
-    # Analyse the email content
-    content_result = analyze_content(
-        f"{email.subject} {email.body}"
-    )
+    # Combine subject and body for analysis
+    email_content = f"{email.subject} {email.body}"
 
-    # Generate the final risk assessment
+    # Content analysis
+    content_result = analyze_content(email_content)
+
+    # URL analysis
+    url_result = analyze_urls(email_content)
+
+    # Combine analyser scores
     risk_result = calculate_risk([
-        content_result["score"]
+        content_result["score"],
+        url_result["score"]
     ])
 
     return {
@@ -37,8 +43,8 @@ def analyze_email(email: EmailRequest):
         },
 
         "analysis": {
-            "content_score": content_result["score"],
-            "indicators": content_result["indicators"]
+            "content": content_result,
+            "urls": url_result
         },
 
         "risk_assessment": risk_result
