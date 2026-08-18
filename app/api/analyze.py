@@ -1,6 +1,9 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from app.analyzers.content_analyzer import analyze_content
+from app.scoring.risk_engine import calculate_risk
+
 
 router = APIRouter(
     prefix="/api",
@@ -16,9 +19,27 @@ class EmailRequest(BaseModel):
 
 @router.post("/analyze")
 def analyze_email(email: EmailRequest):
+
+    # Analyse the email content
+    content_result = analyze_content(
+        f"{email.subject} {email.body}"
+    )
+
+    # Generate the final risk assessment
+    risk_result = calculate_risk([
+        content_result["score"]
+    ])
+
     return {
-        "sender": email.sender,
-        "subject": email.subject,
-        "message": "Email received successfully",
-        "status": "ready_for_analysis"
+        "email": {
+            "sender": email.sender,
+            "subject": email.subject
+        },
+
+        "analysis": {
+            "content_score": content_result["score"],
+            "indicators": content_result["indicators"]
+        },
+
+        "risk_assessment": risk_result
     }
