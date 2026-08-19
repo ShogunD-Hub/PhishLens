@@ -4,8 +4,9 @@ from pydantic import BaseModel
 from app.analyzers.content_analyzer import analyze_content
 from app.analyzers.url_analyzer import analyze_urls
 from app.analyzers.sender_analyzer import analyse_sender
-from app.scoring.risk_engine import calculate_risk
 from app.analyzers.header_analyzer import analyze_headers
+from app.analyzers.email_parser import parse_eml
+from app.scoring.risk_engine import calculate_risk
 
 
 router = APIRouter(
