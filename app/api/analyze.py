@@ -1,5 +1,4 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from fastapi import APIRouter
 from pydantic import BaseModel
 
 from app.analyzers.content_analyzer import analyze_content
