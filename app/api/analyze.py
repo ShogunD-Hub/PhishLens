@@ -65,4 +65,67 @@ def analyze_email(email: EmailRequest):
         },
 
         "risk_assessment": risk_result
+
+        @router.post("/analyze-eml")
+async def analyze_eml(file: UploadFile = File(...)):
+
+    if not file.filename.lower().endswith(".eml"):
+        raise HTTPException(
+            status_code=400,
+            detail="Only .eml files are supported."
+        )
+
+    email_content = await file.read()
+
+    try:
+        parsed_email = parse_eml(email_content)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unable to parse email: {exc}"
+        )
+
+    sender = parsed_email.get("sender", "")
+    reply_to = parsed_email.get("reply_to", "")
+    subject = parsed_email.get("subject", "")
+    body = parsed_email.get("body", "")
+
+    combined_content = f"{subject} {body}"
+
+    content_result = analyze_content(combined_content)
+
+    url_result = analyze_urls(combined_content)
+
+    sender_result = analyse_sender(
+        sender,
+        reply_to
+    )
+
+    header_result = analyze_headers(parsed_email)
+
+    risk_result = calculate_risk([
+        content_result["score"],
+        url_result["score"],
+        sender_result["score"],
+        header_result["risk_score"]
+    ])
+
+    return {
+        "email": {
+            "sender": sender,
+            "reply_to": reply_to,
+            "subject": subject,
+            "return_path": parsed_email.get("return_path", ""),
+            "message_id": parsed_email.get("message_id", "")
+        },
+
+        "analysis": {
+            "content": content_result,
+            "urls": url_result,
+            "sender": sender_result,
+            "header": header_result
+        },
+
+        "risk_assessment": risk_result
+    }
     }
