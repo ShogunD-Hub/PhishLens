@@ -5,6 +5,7 @@ from app.analyzers.content_analyzer import analyze_content
 from app.analyzers.url_analyzer import analyze_urls
 from app.analyzers.sender_analyzer import analyse_sender
 from app.scoring.risk_engine import calculate_risk
+from app.analyzers.header_analyzer import analyze_headers
 
 
 router = APIRouter(
@@ -36,11 +37,17 @@ def analyze_email(email: EmailRequest):
         email.reply_to
     )
 
+    header_result = analyze_headers({
+        "sender": email.sender,
+        "reply_to": email.reply_to or "",
+    })
+
     # Combine analyser scores
     risk_result = calculate_risk([
         content_result["score"],
         url_result["score"],
-        sender_result["score"]
+        sender_result["score"],
+        header_result["risk_score"]
     ])
 
     return {
@@ -53,7 +60,8 @@ def analyze_email(email: EmailRequest):
         "analysis": {
             "content": content_result,
             "urls": url_result,
-            "sender": sender_result
+            "sender": sender_result,
+            "header": header_result
         },
 
         "risk_assessment": risk_result
