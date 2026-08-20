@@ -6,6 +6,7 @@ def parse_eml(file_content: bytes) -> dict:
     """
     Parse an .eml file and extract useful email information.
     """
+    
 
     message = BytesParser(
         policy=policy.default
@@ -17,6 +18,10 @@ def parse_eml(file_content: bytes) -> dict:
     return_path = message.get("Return-Path")
     message_id = message.get("Message-ID")
 
+    authentication_results = message.get(
+    "Authentication-Results"
+)
+
     body = extract_body(message)
 
     return {
@@ -26,6 +31,7 @@ def parse_eml(file_content: bytes) -> dict:
         "return_path": return_path,
         "message_id": message_id,
         "body": body,
+        "authentication_results": authentication_results,
     }
 
 
