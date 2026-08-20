@@ -1,3 +1,5 @@
+from app.analyzers.email_parser import parse_eml
+
 from app.analyzers.url_analyzer import (
     extract_urls,
     analyze_urls
