@@ -28,7 +28,7 @@ Please verify your account immediately.
         },
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
 
     data = response.json()
 
