@@ -8,7 +8,6 @@ from app.analyzers.header_analyzer import analyze_headers
 from app.analyzers.email_parser import parse_eml
 from app.scoring.risk_engine import calculate_risk
 
-
 router = APIRouter(
     prefix="/api",
     tags=["Analysis"]
@@ -66,8 +65,9 @@ def analyze_email(email: EmailRequest):
         },
 
         "risk_assessment": risk_result
+    }
 
-        @router.post("/analyze-eml")
+@router.post("/analyze-eml")
 async def analyze_eml(file: UploadFile = File(...)):
 
     if not file.filename.lower().endswith(".eml"):
@@ -128,5 +128,4 @@ async def analyze_eml(file: UploadFile = File(...)):
         },
 
         "risk_assessment": risk_result
-    }
     }
